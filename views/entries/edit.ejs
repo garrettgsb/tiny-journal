@@ -9,7 +9,7 @@
     <main>
       <% include ../_header.ejs %>
       <h1>New Entry</h1>
-      <form method="POST" action="/entries/<%= entry.id %>">
+      <form method="POST" action="/entries/<%= entry._id %>">
         <label for="title">Title</label>
         <input id="title" name="title" type="text" value="<%= entry.title %>">
 

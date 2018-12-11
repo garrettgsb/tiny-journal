@@ -11,7 +11,7 @@
       <h1>The Tiniest Journal</h1>
       <a class="card new-entry" href="/entries/new">New Entry</a>
       <% entries.forEach(entry => {%>
-        <a class="card" href="/entries/<%= entry.id %>"><%= entry.title %> <small>by <%= entry.author %></small></a>
+        <a class="card" href="/entries/<%= entry['_id'] %>"><%= entry.title %> <small>by <%= entry.author %></small></a>
       <% }) %>
     </main>
   </body>
