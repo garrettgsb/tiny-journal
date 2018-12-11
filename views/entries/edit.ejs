@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title><%= entry.title %></title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <main>
+      <% include ../_header.ejs %>
+      <h1>New Entry</h1>
+      <form method="POST" action="/entries/<%= entry.id %>">
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" value="<%= entry.title %>">
+
+        <label for="author">Author</label>
+        <input id="author" name="author" type="text" value="<%= entry.author %>">
+
+        <label for="content">Content</label>
+        <textarea id="content" name="content"><%= entry.content %></textarea>
+
+        <input class="card" type="submit" value="Submit">
+      </form>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title><%= entry.title %></title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <main>
+      <% include ../_header.ejs %>
+      <h1 style='margin-bottom: 0;'><%= entry.title %></h1>
+      <p style='margin-top: 0;'>by <%= entry.author %></p>
+      <p><%= entry.content %></p>
+      <a class="button" href="/entries/<%= entry.id %>/edit">Edit</a>
+    </main>
+  </body>
+</html>
