@@ -16,25 +16,23 @@ App.set('view engine', 'ejs');
 App.use(BodyParser.urlencoded({ extended: false }));
 App.use(Express.static('public'));
 
+// Mongo Helpers
+function findEntry(id) {
+  return db.collection('entries').findOne({ _id: new ObjectId(id) });
+}
+
+function indexEntries() {
+  return db.collection('entries').find().toArray();
+}
 
 // GET Routes
-App.get('/', (req, res) => {
-  db.collection('entries').find().toArray()
-  .then(result => res.render('index', { entries: result }));
-});
+App.get('/', (req, res) => indexEntries().then(result => res.render('index', { entries: result })));
 
 App.get('/entries', (req, res) => res.redirect('/'));
 App.get('/entries/new', (req, res) => res.render('entries/new'));
 
-App.get('/entries/:id', (req, res) => {
-  db.collection('entries').findOne({ _id: new ObjectId(req.params.id) })
-  .then(result => res.render('entries/show', { entry: result }));
-});
-
-App.get('/entries/:id/edit', (req, res) => {
-  db.collection('entries').findOne({ _id: new ObjectId(req.params.id) })
-  .then(result => res.render('entries/edit', { entry: result } ));
-});
+App.get('/entries/:id', (req, res) => findEntry(req.params.id).then(result => res.render('entries/show', { entry: result })));
+App.get('/entries/:id/edit', (req, res) => findEntry(req.params.id).then(result => res.render('entries/edit', { entry: result } )));
 
 
 // POST Routes
