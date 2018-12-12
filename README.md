@@ -382,7 +382,7 @@ For our seed file, the answer is simple: "When we run the script from the comman
 The client (probably a browser) asks the server to do things via HTTP requests (which is why they're called requests). The routes that the server provides tell the user what things it can ask for. The server decides for itself how it fulfills those requests: Before, each request implied a data lookup in an in-memory object. Now, it implies a query made to Mongo. Using this app as an example:
 
 | Route | Asks to... | Implicit data query |
-|:--------|
+|:--------|:---------|:--------------------|
 | GET / | List every entry by title and author, with links to their content | Find every document in the `entries` collection |
 | GET /entries/:id | Show the details for the entry with ID `:id` | Find the document with ID `:id`|
 | GET /entries/:id/edit | Same as above, but with the data in text fields | Same as above |
