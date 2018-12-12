@@ -6,6 +6,17 @@ First, we create some script files that add **seed data** to the database. It wi
 
 Then, we will create the connection between MongoDB and Express. When an HTTP request is made, instead of looking up and modifying an in-memory object, our code will make calls to the Mongo database.
 
+## Tags
+
+This repository uses tags to show the app in different states of development. This README will call out the points for a **CONTEXT SWITCH**, telling you which tag to check out and when. To see the app in each state, type `git checkout tag-name`, where `tag-name` is the name of one of the tags below:
+
+* `volatile-memory` - Before introducing Mongo at all-- Tiny Journal works, but it does not persist data at all. When the server stops, everything resets.
+* `seed-examples` - Seed files demonstrating a basic Mongo insert using Promises (`seedDb-promises.js`), callbacks (`seedDb-callbacks.js`), and async/await (`seedDb-async-await.js`).
+* `mongo-with-express` - The whole Express server rebuilt to use Mongo to store data, instead of a silly in-memory object.
+* `mongo-helpers` - A demonstration of how one might DRY out their database code and/or make it more readable by abstracting the calls to Mongo out to helper functions.
+
+To see the code changes made between two tags, use `git diff tag1 tag2`.
+
 ## Setup
 
 Install the node modules using the package manager of your choice. All of the packages necessary are in the `package.json` from the start, so you should only need to do this once:
@@ -68,6 +79,8 @@ Then visit Tiny Journal by directing your favorite browser to `localhost:8080`.
 ----------------
 
 # A Thing That Is Annoying
+
+> **CONTEXT SWITCH:** To get into the state described in this section, `git checkout volatile-memory`
 
 In its first iteration, this is the workflow of Tiny Journal:
 
@@ -258,6 +271,8 @@ We'll work primarily with **Promises**, but we'll have a look at all three.
 
 ## Building our seed script
 
+> **CONTEXT SWITCH:** To see the full seed scripts, `git checkout seed-examples`.
+
 Our seed script's job is fairly straightforward: Insert a handful of documents into one collection. A bunch of things need to come together to make that happen. We need to:
   * Use the Mongo driver to connect Node to the Mongo server
   * Create an **instance** of the Mongo Client (What does "client" mean?)
@@ -277,6 +292,7 @@ db.dropDatabase();
 ```
 mongo.db(dbName).dropDatabase();
 ```
+
 
 ### Boilerplate
 
@@ -353,6 +369,8 @@ In the final version of the app, we have just one file called `seedDb`, which us
 
 # Connecting Mongo to Express
 
+> **CONTEXT SWITCH:** To see the final seed file and the Express server connecting to Mongo, `git checkout mongo-with-express`
+
 Finally, we're ready for Mongo and Express to meet. We know all of the tools now-- The hard part is designing how they fit together.
 
 > **Question:** When do we want Mongo to make a query?
@@ -393,8 +411,55 @@ Note where the HTTP response (`res.render`) happens: If it relies on data from t
 
 How can we extend this pattern to serve the remaining routes in the app?
 
+# Mongo Helpers
+
+> **CONTEXT SWITCH:** To see the Express server with a sample Mongo helper method, `git checkout mongo-helpers`
+
+Of course, filling our routes with Mongo code will get messy, especially once queries start becoming complex. To build a more feature-rich app, we would want to wrap some of this complexity in helper functions.
+
+We can abstract out our calls to Mongo into a named function, and then use that function in our route. For example, to make our `GET /` route more readable, we might write a function like this:
+
+```
+function indexEntries() {
+  return db.collection('entries').find().toArray();
+}
+```
+
+Now, our route can change from this:
+
+```
+App.get('/', (req, res) => {
+  db.collection('entries').find().toArray()
+  .then(result => res.render('index', { entries: result }));
+});
+```
+
+To a much more readable one-liner:
+
+```
+App.get('/', (req, res) => indexEntries().then(result => res.render('index', { entries: result })));
+```
+
+This way, a future developer (who might be you!) can easily glance at the route and know that its job is to index the entries. If you don't like the word "index," you could just as happily call it something like `getEntries()` or `getAllEntries()`. In any case, it saves you the trouble of needing to carefully read database code to determine what data a particular route uses-- **The method name communicates the intent.** That's important enough to call out for someone just skimming:
+
+> **The method name communicates the intent.**
+
+Another simple example would be to notice that our `entries/show` and `entries/edit` views require the same data: A single entry. If we capture the `findOne` query in a function, we can use it for both routes:
+
+```
+function findEntry(id) {
+  return db.collection('entries').findOne({ _id: new ObjectId(id) });
+}
+
+App.get('/entries/:id', (req, res) => findEntry(req.params.id).then(result => res.render('entries/show', { entry: result })));
+App.get('/entries/:id/edit', (req, res) => findEntry(req.params.id).then(result => res.render('entries/edit', { entry: result } )));
+```
+
+Could we DRY this out even further?
+
 
 # Fun Links:
 
-Cool cheat sheet: https://www.opentechguides.com/how-to/article/mongodb/118/mongodb-cheatsheat.html
-All the docs you could want: https://mongodb.github.io/node-mongodb-native/
+* Cool cheat sheet with a fun typo in the URL: https://www.opentechguides.com/how-to/article/mongodb/118/mongodb-cheatsheat.html
+
+* All the docs you could want: https://mongodb.github.io/node-mongodb-native/
